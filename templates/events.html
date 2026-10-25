@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareFlow | Clinical Event Explorer</title>
+    <style>
+        :root {
+            --navy: #14213d;
+            --blue: #2563eb;
+            --bg: #f3f6fb;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+        .layout { display: flex; min-height: 100vh; }
+        aside {
+            width: 235px;
+            flex-shrink: 0;
+            padding: 28px 18px;
+            background: linear-gradient(180deg, #14213d, #1e3a8a);
+            color: white;
+        }
+        .brand { font-size: 23px; font-weight: 800; margin-bottom: 8px; }
+        .subtitle { color: #cbd5e1; font-size: 12px; margin-bottom: 34px; }
+        nav a {
+            display: block;
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 13px 12px;
+            border-radius: 9px;
+            margin: 7px 0;
+        }
+        nav a.active, nav a:hover { background: #ffffff20; color: white; }
+        main { flex: 1; min-width: 0; padding: 32px; }
+        .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+        h1 { margin: 0 0 8px; font-size: 29px; }
+        .muted { color: var(--muted); }
+        .panel {
+            margin-top: 24px;
+            padding: 23px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 5px 18px #0f172a08;
+        }
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(130px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 7px; }
+        input, select {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 9px;
+            background: white;
+            font: inherit;
+        }
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 17px; }
+        .btn {
+            display: inline-block;
+            border: 0;
+            border-radius: 8px;
+            padding: 11px 16px;
+            background: var(--blue);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn.secondary { background: #e2e8f0; color: #1e293b; }
+        .count { margin: 0; font-weight: 700; }
+        .table-wrap { overflow-x: auto; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; min-width: 560px; }
+        th, td { padding: 13px 14px; border-bottom: 1px solid var(--border); text-align: left; font-size: 14px; }
+        th { background: #f8fafc; color: #475569; }
+        tbody tr:hover { background: #f8fafc; }
+        .pill { background: #dbeafe; color: #1d4ed8; padding: 5px 9px; border-radius: 20px; font-size: 12px; }
+        .alert { margin-top: 18px; padding: 13px; border-radius: 9px; background: #fee2e2; color: #991b1b; }
+        .note { font-size: 13px; color: var(--muted); margin-top: 14px; }
+        @media (max-width: 900px) {
+            .layout { display: block; }
+            aside { width: 100%; }
+            nav { display: flex; flex-wrap: wrap; gap: 5px; }
+            main { padding: 20px; }
+            .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 520px) {
+            .filters { grid-template-columns: 1fr; }
+            main { padding: 14px; }
+            .panel { padding: 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <aside>
+        <div class="brand">CareFlow</div>
+        <div class="subtitle">CLINICAL PATHWAY INTELLIGENCE</div>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a class="active" href="{{ url_for('events') }}">Clinical Event Explorer</a>
+            <a href="{{ url_for('reports') }}">Reports & Analytics</a>
+            <a href="{{ url_for('logout') }}">Sign out</a>
+        </nav>
+    </aside>
+
+    <main>
+        <div class="top">
+            <div>
+                <h1>Clinical Event Explorer</h1>
+                <p class="muted">Search, filter and review clinical pathway events.</p>
+            </div>
+            <span class="pill">CareFlow Analytics</span>
+        </div>
+
+        <section class="panel">
+            <h2>Search & Filters</h2>
+            <form method="GET" action="{{ url_for('events') }}">
+                <div class="filters">
+                    <div>
+                        <label for="case_id">Patient Case ID</label>
+                        <input id="case_id" name="case_id" value="{{ case_id }}"
+                               placeholder="Enter case ID">
+                    </div>
+                    <div>
+                        <label for="activity">Clinical Activity</label>
+                        <select id="activity" name="activity">
+                            <option value="">All activities</option>
+                            {% for item in activities %}
+                            <option value="{{ item }}"
+                                {% if item == selected_activity %}selected{% endif %}>
+                                {{ item }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="start_date">Start Date (UTC)</label>
+                        <input id="start_date" type="date" name="start_date" value="{{ start_date }}">
+                    </div>
+                    <div>
+                        <label for="end_date">End Date (UTC)</label>
+                        <input id="end_date" type="date" name="end_date" value="{{ end_date }}">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button class="btn" type="submit">Apply Filters</button>
+                    <a class="btn secondary" href="{{ url_for('events') }}">Reset</a>
+                    <button class="btn secondary" type="submit"
+                            formaction="{{ url_for('download_filtered_events') }}">
+                        Download Filtered CSV
+                    </button>
+                </div>
+            </form>
+            <p class="note">Date filters use UTC. Up to 200 matching events are shown on this page; CSV export includes all matching events.</p>
+        </section>
+
+        {% if error %}
+        <div class="alert">Unable to load events: {{ error }}</div>
+        {% else %}
+        <section class="panel">
+            <h2>Matching Clinical Events</h2>
+            <p class="count">{{ total_results }} matching event(s)</p>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Case ID</th>
+                            <th>Clinical Activity</th>
+                            <th>Event Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>{{ event.case_id }}</td>
+                            <td>{{ event.activity }}</td>
+                            <td>{{ event.timestamp }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3">No events match your filters.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from io import BytesIO
 
 import pandas as pd
 from flask import (
@@ -11,6 +12,7 @@ from flask import (
     session,
     send_from_directory,
     abort,
+    send_file,
 )
 
 app = Flask(__name__)
@@ -22,6 +24,34 @@ REPORTS_DIR = BASE_DIR / "reports"
 
 DEMO_USERNAME = "careflow_admin"
 DEMO_PASSWORD = "CareFlow@123"
+
+CASE_COL = "case:concept:name"
+ACTIVITY_COL = "concept:name"
+TIME_COL = "time:timestamp"
+
+
+def load_events():
+    """Load and prepare clinical event data."""
+    if not DATA_FILE.exists():
+        raise FileNotFoundError(
+            "Dataset not found: data/processed/events_cleaned.parquet"
+        )
+
+    df = pd.read_parquet(DATA_FILE)
+
+    required = [CASE_COL, ACTIVITY_COL, TIME_COL]
+    missing = [column for column in required if column not in df.columns]
+
+    if missing:
+        raise ValueError("Missing dataset columns: " + ", ".join(missing))
+
+    df[TIME_COL] = pd.to_datetime(df[TIME_COL], errors="coerce", utc=True)
+    df = df.dropna(subset=[CASE_COL, ACTIVITY_COL, TIME_COL]).copy()
+
+    df[CASE_COL] = df[CASE_COL].astype(str)
+    df[ACTIVITY_COL] = df[ACTIVITY_COL].astype(str)
+
+    return df.sort_values(TIME_COL)
 
 
 def load_dashboard_data():
@@ -36,66 +66,44 @@ def load_dashboard_data():
         "recent_events": [],
     }
 
-    if not DATA_FILE.exists():
-        data["error"] = (
-            "Dataset not found: data/processed/events_cleaned.parquet"
-        )
-        return data
-
     try:
-        df = pd.read_parquet(DATA_FILE)
+        df = load_events()
 
-        case_col = "case:concept:name"
-        activity_col = "concept:name"
-        time_col = "time:timestamp"
-
-        required = [case_col, activity_col, time_col]
-        missing = [column for column in required if column not in df.columns]
-
-        if missing:
-            data["error"] = "Missing columns: " + ", ".join(missing)
-            return data
-
-        df[time_col] = pd.to_datetime(
-            df[time_col], errors="coerce", utc=True
-        )
-        df = df.dropna(subset=required).copy()
-        df = df.sort_values([case_col, time_col])
-
-        total_cases = int(df[case_col].nunique())
+        total_cases = int(df[CASE_COL].nunique())
         total_events = int(len(df))
 
         activities = (
-            df[activity_col]
+            df[ACTIVITY_COL]
             .value_counts()
             .head(12)
             .rename_axis("activity")
             .reset_index(name="count")
         )
 
-        df["next_activity"] = df.groupby(case_col)[activity_col].shift(-1)
+        df = df.sort_values([CASE_COL, TIME_COL]).copy()
+        df["next_activity"] = df.groupby(CASE_COL)[ACTIVITY_COL].shift(-1)
 
         transitions = (
             df.dropna(subset=["next_activity"])
-            .groupby([activity_col, "next_activity"])
+            .groupby([ACTIVITY_COL, "next_activity"])
             .size()
             .reset_index(name="count")
             .sort_values("count", ascending=False)
             .head(10)
         )
 
-        recent = df.sort_values(time_col, ascending=False).head(10)
+        recent = df.sort_values(TIME_COL, ascending=False).head(10)
 
         data.update({
             "total_cases": total_cases,
             "total_events": total_events,
-            "total_activities": int(df[activity_col].nunique()),
+            "total_activities": int(df[ACTIVITY_COL].nunique()),
             "avg_events": round(total_events / total_cases, 2)
             if total_cases else 0,
             "activities": activities.to_dict("records"),
             "transitions": [
                 {
-                    "from_activity": str(row[activity_col]),
+                    "from_activity": str(row[ACTIVITY_COL]),
                     "to_activity": str(row["next_activity"]),
                     "count": int(row["count"]),
                 }
@@ -103,10 +111,10 @@ def load_dashboard_data():
             ],
             "recent_events": [
                 {
-                    "case": str(row[case_col]),
-                    "activity": str(row[activity_col]),
-                    "timestamp": row[time_col].strftime(
-                        "%Y-%m-%d %H:%M UTC"
+                    "case": str(row[CASE_COL]),
+                    "activity": str(row[ACTIVITY_COL]),
+                    "timestamp": row[TIME_COL].strftime(
+                        "%Y-%m-%d %H:%M:%S UTC"
                     ),
                 }
                 for _, row in recent.iterrows()
@@ -117,6 +125,54 @@ def load_dashboard_data():
         data["error"] = f"Dataset loading failed: {exc}"
 
     return data
+
+
+def get_filtered_events(args):
+    """Filter clinical events by case ID, activity and inclusive dates."""
+    df = load_events()
+
+    case_id = args.get("case_id", "").strip()
+    activity = args.get("activity", "").strip()
+    start_date = args.get("start_date", "").strip()
+    end_date = args.get("end_date", "").strip()
+
+    if case_id:
+        df = df[
+            df[CASE_COL].str.contains(case_id, case=False, regex=False)
+        ]
+
+    if activity:
+        df = df[df[ACTIVITY_COL] == activity]
+
+    start = None
+    end_exclusive = None
+
+    if start_date:
+        try:
+            start = pd.Timestamp(start_date).tz_localize("UTC")
+        except (ValueError, TypeError):
+            raise ValueError("Please select a valid start date.")
+
+    if end_date:
+        try:
+            end_exclusive = (
+                pd.Timestamp(end_date).tz_localize("UTC")
+                + pd.Timedelta(days=1)
+            )
+        except (ValueError, TypeError):
+            raise ValueError("Please select a valid end date.")
+
+    if start is not None and end_exclusive is not None:
+        if start >= end_exclusive:
+            raise ValueError("Start date must be on or before end date.")
+
+    if start is not None:
+        df = df[df[TIME_COL] >= start]
+
+    if end_exclusive is not None:
+        df = df[df[TIME_COL] < end_exclusive]
+
+    return df.sort_values(TIME_COL, ascending=False)
 
 
 @app.route("/")
@@ -152,6 +208,86 @@ def dashboard():
         "dashboard.html",
         dashboard=load_dashboard_data()
     )
+
+
+@app.route("/events", methods=["GET"])
+def events():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    filters = {
+        "case_id": request.args.get("case_id", ""),
+        "activity": request.args.get("activity", ""),
+        "start_date": request.args.get("start_date", ""),
+        "end_date": request.args.get("end_date", ""),
+    }
+
+    try:
+        df = get_filtered_events(filters)
+
+        all_activities = sorted(
+            load_events()[ACTIVITY_COL].dropna().unique().tolist()
+        )
+
+        display_df = df[[CASE_COL, ACTIVITY_COL, TIME_COL]].copy()
+        display_df.columns = ["case_id", "activity", "timestamp"]
+
+        # Display date, hour, minute and second.
+        display_df["timestamp"] = display_df["timestamp"].dt.strftime(
+            "%Y-%m-%d %H:%M:%S UTC"
+        )
+
+        return render_template(
+            "events.html",
+            events=display_df.head(200).to_dict("records"),
+            total_results=len(display_df),
+            activities=all_activities,
+            case_id=filters["case_id"],
+            selected_activity=filters["activity"],
+            start_date=filters["start_date"],
+            end_date=filters["end_date"],
+            error=None,
+        )
+
+    except Exception as exc:
+        try:
+            all_activities = sorted(
+                load_events()[ACTIVITY_COL].dropna().unique().tolist()
+            )
+        except Exception:
+            all_activities = []
+
+        return render_template(
+            "events.html",
+            events=[],
+            total_results=0,
+            activities=all_activities,
+            case_id=filters["case_id"],
+            selected_activity=filters["activity"],
+            start_date=filters["start_date"],
+            end_date=filters["end_date"],
+            error=str(exc),
+        )
+
+
+@app.route("/events/download")
+def download_filtered_events():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    try:
+        df = get_filtered_events(request.args)
+        csv_data = df.to_csv(index=False).encode("utf-8")
+
+        return send_file(
+            BytesIO(csv_data),
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="careflow_filtered_events.csv",
+        )
+
+    except Exception as exc:
+        return f"Could not export events: {exc}", 400
 
 
 @app.route("/reports")
