@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareFlow | Patient Journey</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #1e293b;
+        }
+        .container { max-width: 1050px; margin: auto; }
+        .header {
+            background: #123b66;
+            color: white;
+            padding: 24px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+        }
+        .header h1 { margin: 0 0 8px; }
+        .header p { margin: 0; color: #dbeafe; }
+        .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px #0f172a0d;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: end;
+        }
+        .field { flex: 1; min-width: 220px; }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        select, button, .button {
+            padding: 12px;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+        select {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            background: white;
+        }
+        button, .button {
+            border: 0;
+            background: #1769aa;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button.secondary { background: #475569; }
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stat {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 4px solid #1769aa;
+            overflow-wrap: anywhere;
+        }
+        .stat span {
+            color: #64748b;
+            display: block;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .stat strong { font-size: 20px; }
+        .timeline {
+            border-left: 3px solid #bfdbfe;
+            margin: 22px 0 5px 12px;
+            padding-left: 24px;
+        }
+        .event {
+            position: relative;
+            margin-bottom: 22px;
+            padding: 16px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+        }
+        .event::before {
+            content: "";
+            position: absolute;
+            left: -34px;
+            top: 21px;
+            width: 14px;
+            height: 14px;
+            background: #1769aa;
+            border: 3px solid white;
+            border-radius: 50%;
+        }
+        .event h3 { margin: 0 0 8px; font-size: 16px; }
+        .event p { margin: 0; color: #64748b; font-size: 14px; }
+        .error {
+            background: #fef2f2;
+            color: #b91c1c;
+            padding: 13px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+        .muted { color: #64748b; }
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .header, .panel { padding: 17px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header class="header">
+        <h1>Patient Journey Analysis</h1>
+        <p>Explore the chronological clinical events recorded for a patient case.</p>
+    </header>
+
+    <section class="panel">
+        <h2>Select Patient Case</h2>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="GET" action="{{ url_for('journey') }}">
+            <div class="form-row">
+                <div class="field">
+                    <label for="case_id">Patient Case ID</label>
+                    <select name="case_id" id="case_id" required>
+                        <option value="">-- Select a case --</option>
+                        {% for case in case_ids %}
+                            <option value="{{ case }}"
+                                {% if case == selected_case %}selected{% endif %}>
+                                {{ case }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit">View Journey</button>
+            </div>
+        </form>
+
+        <div class="button-row">
+            <a class="button secondary" href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a class="button secondary" href="{{ url_for('events') }}">Patient Events</a>
+            <a class="button secondary" href="{{ url_for('reports') }}">Reports</a>
+            <a class="button secondary" href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </section>
+
+    {% if journey %}
+        <section class="stats">
+            <div class="stat">
+                <span>Patient Case ID</span>
+                <strong>{{ journey.case_id }}</strong>
+            </div>
+            <div class="stat">
+                <span>Total Recorded Events</span>
+                <strong>{{ journey.event_count }}</strong>
+            </div>
+            <div class="stat">
+                <span>Recorded Duration</span>
+                <strong>{{ journey.duration_hours }} hours</strong>
+            </div>
+            <div class="stat">
+                <span>First Recorded Event</span>
+                <strong>{{ journey.first_event }}</strong>
+            </div>
+            <div class="stat">
+                <span>Last Recorded Event</span>
+                <strong>{{ journey.last_event }}</strong>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Clinical Activity Timeline</h2>
+            <p class="muted">
+                Events are displayed from earliest to latest recorded timestamp.
+            </p>
+
+            <div class="timeline">
+                {% for event in journey.timeline %}
+                    <article class="event">
+                        <h3>{{ event.number }}. {{ event.activity }}</h3>
+                        <p>{{ event.timestamp }}</p>
+                    </article>
+                {% endfor %}
+            </div>
+
+            <div class="button-row">
+                <a class="button"
+                   href="{{ url_for('download_journey', case_id=selected_case) }}">
+                    Download Journey CSV
+                </a>
+            </div>
+
+            <p class="muted">
+                Note: Recorded duration is the time between the first and last
+                available events in this dataset. It may not represent the
+                patient's complete hospital stay.
+            </p>
+        </section>
+    {% elif not error %}
+        <section class="panel">
+            <h2>Your patient timeline will appear here</h2>
+            <p class="muted">
+                Select a patient case above and click "View Journey".
+            </p>
+        </section>
+    {% endif %}
+
+</div>
+</body>
+</html>

@@ -45,8 +45,12 @@ def load_events():
     if missing:
         raise ValueError("Missing dataset columns: " + ", ".join(missing))
 
-    df[TIME_COL] = pd.to_datetime(df[TIME_COL], errors="coerce", utc=True)
-    df = df.dropna(subset=[CASE_COL, ACTIVITY_COL, TIME_COL]).copy()
+    df[TIME_COL] = pd.to_datetime(
+        df[TIME_COL], errors="coerce", utc=True
+    )
+    df = df.dropna(
+        subset=[CASE_COL, ACTIVITY_COL, TIME_COL]
+    ).copy()
 
     df[CASE_COL] = df[CASE_COL].astype(str)
     df[ACTIVITY_COL] = df[ACTIVITY_COL].astype(str)
@@ -68,7 +72,6 @@ def load_dashboard_data():
 
     try:
         df = load_events()
-
         total_cases = int(df[CASE_COL].nunique())
         total_events = int(len(df))
 
@@ -80,11 +83,13 @@ def load_dashboard_data():
             .reset_index(name="count")
         )
 
-        df = df.sort_values([CASE_COL, TIME_COL]).copy()
-        df["next_activity"] = df.groupby(CASE_COL)[ACTIVITY_COL].shift(-1)
+        ordered = df.sort_values([CASE_COL, TIME_COL]).copy()
+        ordered["next_activity"] = (
+            ordered.groupby(CASE_COL)[ACTIVITY_COL].shift(-1)
+        )
 
         transitions = (
-            df.dropna(subset=["next_activity"])
+            ordered.dropna(subset=["next_activity"])
             .groupby([ACTIVITY_COL, "next_activity"])
             .size()
             .reset_index(name="count")
@@ -128,7 +133,7 @@ def load_dashboard_data():
 
 
 def get_filtered_events(args):
-    """Filter clinical events by case ID, activity and inclusive dates."""
+    """Filter events by case, activity and inclusive date range."""
     df = load_events()
 
     case_id = args.get("case_id", "").strip()
@@ -138,7 +143,9 @@ def get_filtered_events(args):
 
     if case_id:
         df = df[
-            df[CASE_COL].str.contains(case_id, case=False, regex=False)
+            df[CASE_COL].str.contains(
+                case_id, case=False, regex=False
+            )
         ]
 
     if activity:
@@ -162,9 +169,12 @@ def get_filtered_events(args):
         except (ValueError, TypeError):
             raise ValueError("Please select a valid end date.")
 
-    if start is not None and end_exclusive is not None:
-        if start >= end_exclusive:
-            raise ValueError("Start date must be on or before end date.")
+    if (
+        start is not None
+        and end_exclusive is not None
+        and start >= end_exclusive
+    ):
+        raise ValueError("Start date must be on or before end date.")
 
     if start is not None:
         df = df[df[TIME_COL] >= start]
@@ -173,6 +183,39 @@ def get_filtered_events(args):
         df = df[df[TIME_COL] < end_exclusive]
 
     return df.sort_values(TIME_COL, ascending=False)
+
+
+def get_patient_journey(case_id):
+    """Return a single case's events in chronological order."""
+    df = load_events()
+    journey = df[df[CASE_COL] == case_id].sort_values(TIME_COL).copy()
+
+    if journey.empty:
+        return None
+
+    first_time = journey[TIME_COL].iloc[0]
+    last_time = journey[TIME_COL].iloc[-1]
+    duration = (last_time - first_time).total_seconds()
+
+    timeline = []
+    for number, (_, row) in enumerate(journey.iterrows(), start=1):
+        timeline.append({
+            "number": number,
+            "activity": str(row[ACTIVITY_COL]),
+            "timestamp": row[TIME_COL].strftime(
+                "%Y-%m-%d %H:%M:%S UTC"
+            ),
+        })
+
+    return {
+        "case_id": case_id,
+        "event_count": len(journey),
+        "first_event": first_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "last_event": last_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "duration_hours": round(duration / 3600, 2),
+        "timeline": timeline,
+        "dataframe": journey,
+    }
 
 
 @app.route("/")
@@ -224,15 +267,12 @@ def events():
 
     try:
         df = get_filtered_events(filters)
-
         all_activities = sorted(
             load_events()[ACTIVITY_COL].dropna().unique().tolist()
         )
 
         display_df = df[[CASE_COL, ACTIVITY_COL, TIME_COL]].copy()
         display_df.columns = ["case_id", "activity", "timestamp"]
-
-        # Display date, hour, minute and second.
         display_df["timestamp"] = display_df["timestamp"].dt.strftime(
             "%Y-%m-%d %H:%M:%S UTC"
         )
@@ -290,6 +330,69 @@ def download_filtered_events():
         return f"Could not export events: {exc}", 400
 
 
+@app.route("/journey", methods=["GET"])
+def journey():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    try:
+        df = load_events()
+        case_ids = sorted(df[CASE_COL].unique().tolist())
+        selected_case = request.args.get("case_id", "").strip()
+        journey_data = None
+        error = None
+
+        if selected_case:
+            if selected_case not in set(case_ids):
+                error = "That patient case ID was not found."
+            else:
+                journey_data = get_patient_journey(selected_case)
+
+        return render_template(
+            "journey.html",
+            case_ids=case_ids,
+            selected_case=selected_case,
+            journey=journey_data,
+            error=error,
+        )
+
+    except Exception as exc:
+        return render_template(
+            "journey.html",
+            case_ids=[],
+            selected_case="",
+            journey=None,
+            error=f"Could not load patient journey: {exc}",
+        )
+
+
+@app.route("/journey/download")
+def download_journey():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    case_id = request.args.get("case_id", "").strip()
+    if not case_id:
+        return "Please select a patient case first.", 400
+
+    try:
+        result = get_patient_journey(case_id)
+        if result is None:
+            return "Patient case was not found.", 404
+
+        csv_data = result["dataframe"].to_csv(index=False).encode("utf-8")
+
+        return send_file(
+            BytesIO(csv_data),
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="careflow_journey.csv",
+        )
+
+    except Exception as exc:
+        return f"Could not export patient journey: {exc}", 400
+
+
 @app.route("/reports")
 def reports():
     if not session.get("logged_in"):
@@ -302,7 +405,8 @@ def reports():
         report_files = sorted(
             file.name
             for file in REPORTS_DIR.iterdir()
-            if file.is_file() and file.suffix.lower() in allowed_extensions
+            if file.is_file()
+            and file.suffix.lower() in allowed_extensions
         )
 
     return render_template(
@@ -331,15 +435,11 @@ def report_file(filename):
 
     if requested_file.suffix.lower() == ".png":
         return send_from_directory(
-            REPORTS_DIR,
-            filename,
-            mimetype="image/png"
+            REPORTS_DIR, filename, mimetype="image/png"
         )
 
     return send_from_directory(
-        REPORTS_DIR,
-        filename,
-        as_attachment=True
+        REPORTS_DIR, filename, as_attachment=True
     )
 
 
