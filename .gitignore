@@ -1,9 +1,13 @@
+
 __pycache__/
 *.py[cod]
 .venv/
 venv/
 .ipynb_checkpoints/
-data/raw/*.parquet
-data/raw/*.xes.gz
 .env
 .vscode/
+
+# Raw and processed clinical datasets
+data/raw/*.parquet
+data/raw/*.xes.gz
+data/processed/*.parquet
