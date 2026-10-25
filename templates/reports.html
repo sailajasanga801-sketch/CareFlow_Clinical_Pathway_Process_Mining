@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareFlow | Reports</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #172033;
+        }
+
+        header {
+            background: #123b5d;
+            color: white;
+            padding: 22px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 { margin: 0; }
+
+        header p {
+            margin-bottom: 0;
+            color: #d9e8f5;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 14px;
+            border: 1px solid #ffffff66;
+            border-radius: 8px;
+        }
+
+        nav a:hover { background: #245778; }
+
+        main {
+            max-width: 1100px;
+            margin: auto;
+            padding: 28px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 22px;
+            box-shadow: 0 3px 15px #1720330d;
+        }
+
+        h2 {
+            color: #123b5d;
+            margin-top: 0;
+        }
+
+        .muted {
+            color: #667085;
+            line-height: 1.6;
+        }
+
+        .report-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e7ebf1;
+            flex-wrap: wrap;
+        }
+
+        .report-name {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .download {
+            color: white;
+            background: #147d75;
+        }
+
+        .view {
+            color: white;
+            background: #315dcc;
+        }
+
+        .btn:hover { opacity: 0.85; }
+
+        .empty {
+            color: #667085;
+            padding: 12px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 22px;
+            color: #667085;
+        }
+
+        @media (max-width: 600px) {
+            main { padding: 15px; }
+            header { padding: 20px; }
+            .report-item { align-items: flex-start; }
+        }
+    </style>
+</head>
+
+<body>
+<header>
+    <div>
+        <h1>CareFlow</h1>
+        <p>Clinical Pathway Process Mining · Reports</p>
+    </div>
+
+    <nav>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('reports') }}">Reports</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+</header>
+
+<main>
+    <section class="panel">
+        <h2>Reports & Analysis Files</h2>
+        <p class="muted">
+            Download CSV analysis reports or open PNG charts generated
+            by the CareFlow clinical pathway analysis.
+        </p>
+
+        {% if report_files %}
+        <ul class="report-list">
+            {% for file in report_files %}
+            <li class="report-item">
+                <span class="report-name">{{ file }}</span>
+
+                <div class="actions">
+                    {% if file.lower().endswith('.csv') %}
+                    <a class="btn download"
+                       href="{{ url_for('report_file', filename=file) }}">
+                        Download CSV
+                    </a>
+                    {% elif file.lower().endswith('.png') %}
+                    <a class="btn view"
+                       href="{{ url_for('report_file', filename=file) }}"
+                       target="_blank" rel="noopener">
+                        View Chart
+                    </a>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="empty">
+            No CSV reports or PNG charts were found in the reports folder.
+        </p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>About This Project</h2>
+        <p class="muted">
+            CareFlow analyzes clinical event logs to summarize patient cases,
+            activity frequency, process transitions, journey duration,
+            and data quality. These reports help explore clinical workflow
+            patterns in the supplied dataset.
+        </p>
+    </section>
+</main>
+
+<footer>
+    CareFlow · Clinical Pathway Process Mining
+</footer>
+</body>
+</html>

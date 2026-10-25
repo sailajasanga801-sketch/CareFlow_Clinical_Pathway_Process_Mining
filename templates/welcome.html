@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareFlow | Clinical Pathway Analytics</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f8fc;
+            color: #172b4d;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 8%;
+            background: white;
+            border-bottom: 1px solid #e5edf5;
+        }
+        .brand { font-size: 25px; font-weight: 800; color: #176b87; }
+        .brand span { color: #19a68c; }
+        .nav-tag { color: #60758c; font-size: 14px; }
+        .hero {
+            max-width: 1150px;
+            margin: 55px auto;
+            padding: 35px 24px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 45px;
+        }
+        .tag {
+            display: inline-block;
+            background: #dff7f1;
+            color: #087e6c;
+            padding: 9px 14px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        h1 {
+            font-size: clamp(38px, 5vw, 58px);
+            line-height: 1.13;
+            margin: 22px 0;
+            letter-spacing: -1.5px;
+        }
+        h1 span { color: #168b91; }
+        .description {
+            color: #63758a;
+            line-height: 1.8;
+            font-size: 16px;
+            max-width: 570px;
+        }
+        .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 30px; }
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 14px 23px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .primary { background: #176b87; color: white; }
+        .secondary { border: 1px solid #cbd8e5; color: #334e68; background: white; }
+        .visual {
+            background: linear-gradient(145deg, #173e62, #147d86);
+            border-radius: 25px;
+            padding: 28px;
+            color: white;
+            box-shadow: 0 20px 50px #173e6220;
+        }
+        .visual h2 { font-size: 22px; margin-bottom: 8px; }
+        .visual p { color: #d4e8f0; line-height: 1.6; font-size: 14px; }
+        .feature {
+            background: #ffffff18;
+            border: 1px solid #ffffff28;
+            padding: 17px;
+            border-radius: 14px;
+            margin-top: 15px;
+        }
+        .feature strong { display: block; margin-bottom: 6px; }
+        .features {
+            max-width: 1100px;
+            margin: 0 auto 55px;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .feature-card {
+            background: white;
+            padding: 23px;
+            border: 1px solid #e3ebf3;
+            border-radius: 16px;
+        }
+        .feature-card .icon { font-size: 27px; }
+        .feature-card h3 { margin: 12px 0 8px; font-size: 17px; }
+        .feature-card p { color: #687b90; line-height: 1.7; font-size: 14px; }
+        footer { text-align: center; padding: 25px; color: #7b8da0; font-size: 13px; }
+        @media (max-width: 760px) {
+            .hero { grid-template-columns: 1fr; margin: 20px auto; }
+            .features { grid-template-columns: 1fr; }
+            nav { padding: 18px 6%; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="brand">Care<span>Flow</span></div>
+        <div class="nav-tag">Clinical Analytics Platform</div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div>
+                <span class="tag">HEALTHCARE · DATA · PROCESS MINING</span>
+                <h1>Understand Care.<br><span>Improve Outcomes.</span></h1>
+                <p class="description">
+                    CareFlow is a clinical pathway process-mining project
+                    that explores patient event logs, discovers activity
+                    patterns, analyses recorded journeys, and highlights
+                    data-quality issues using real-world healthcare data.
+                </p>
+                <div class="actions">
+                    <a class="btn primary" href="/login">Get Started →</a>
+                    <a class="btn secondary" href="#features">Explore Features</a>
+                </div>
+            </div>
+
+            <div class="visual">
+                <h2>Clinical Pathway Insights</h2>
+                <p>Explore event patterns and recorded patient journeys.</p>
+                <div class="feature">
+                    <strong>01 · Activity Analysis</strong>
+                    <p>Understand which clinical and administrative events occur most often.</p>
+                </div>
+                <div class="feature">
+                    <strong>02 · Process Transitions</strong>
+                    <p>Explore common sequences between recorded activities.</p>
+                </div>
+                <div class="feature">
+                    <strong>03 · Data Quality</strong>
+                    <p>Review missing values and event-log completeness.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <article class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Interactive Analytics</h3>
+                <p>Visualise activity frequency and process transitions.</p>
+            </article>
+            <article class="feature-card">
+                <div class="icon">🩺</div>
+                <h3>Patient Journeys</h3>
+                <p>Inspect recorded event sequences for individual cases.</p>
+            </article>
+            <article class="feature-card">
+                <div class="icon">📁</div>
+                <h3>Research Reports</h3>
+                <p>Review data-quality summaries and export analysis results.</p>
+            </article>
+        </section>
+    </main>
+
+    <footer>
+        CareFlow · Clinical Pathway Process Mining · Academic Project
+    </footer>
+</body>
+</html>
