@@ -1,0 +1,136 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process Bottlenecks | CareFlow</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 1150px;
+            margin: auto;
+        }
+        .header, .panel {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+        }
+        h1 { margin-top: 0; color: #163b70; }
+        .muted { color: #64748b; }
+        .button {
+            display: inline-block;
+            padding: 10px 15px;
+            margin: 5px 5px 5px 0;
+            border-radius: 7px;
+            background: #174ea6;
+            color: white;
+            text-decoration: none;
+        }
+        .table-wrap { overflow-x: auto; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: left;
+            white-space: nowrap;
+        }
+        th { background: #eaf1fb; }
+        .error { color: #b91c1c; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <section class="header">
+        <h1>Process Bottleneck Analysis</h1>
+        <p class="muted">
+            Explore recorded time gaps between consecutive clinical activities.
+        </p>
+        <a class="button" href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a class="button" href="{{ url_for('reports') }}">All Reports</a>
+        <a class="button" href="{{ url_for('report_file', filename='process_bottlenecks.csv') }}">
+            Download CSV
+        </a>
+    </section>
+
+    {% if error %}
+    <section class="panel">
+        <h3 class="error">Unable to load bottleneck report</h3>
+        <p>{{ error }}</p>
+        <p>Run this command in the project terminal:</p>
+        <code>python src/bottleneck_analysis.py</code>
+    </section>
+    {% else %}
+
+    <section class="panel">
+        <h2>Top Recorded Activity Gaps</h2>
+        <p>{{ total_transitions }} transitions displayed (maximum 100).</p>
+
+        {% if chart_exists %}
+        <img
+            src="{{ url_for('report_file', filename='process_bottlenecks.png') }}"
+            alt="Chart of the ten activity transitions with the largest average recorded gaps">
+        {% else %}
+        <p class="muted">Chart not found. Run the analysis script again.</p>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <h2>Transition Details</h2>
+        <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>From Activity</th>
+                    <th>To Activity</th>
+                    <th>Transition Count</th>
+                    <th>Average Gap (hours)</th>
+                    <th>Median Gap (hours)</th>
+                    <th>Maximum Gap (hours)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in bottlenecks %}
+                <tr>
+                    <td>{{ item.from_activity }}</td>
+                    <td>{{ item.to_activity }}</td>
+                    <td>{{ item.case_transitions }}</td>
+                    <td>{{ "%.2f"|format(item.average_gap_hours) }}</td>
+                    <td>{{ "%.2f"|format(item.median_gap_hours) }}</td>
+                    <td>{{ "%.2f"|format(item.maximum_gap_hours) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6">No transitions available.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    {% endif %}
+
+    <section class="panel">
+        <p class="muted">
+            These values represent recorded timestamp gaps, not confirmed
+            treatment delays. Interpret them in the context of the clinical
+            workflow and available data.
+        </p>
+    </section>
+
+</div>
+</body>
+</html>
