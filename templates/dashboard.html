@@ -50,6 +50,7 @@
             padding: 13px 12px;
             margin-bottom: 7px;
             border-radius: 7px;
+            transition: background 0.2s ease;
         }
 
         .nav-link:hover,
@@ -272,23 +273,34 @@
         <div class="subtitle">Clinical Pathway Analytics</div>
 
         <nav>
-            <a class="nav-link active" href="{{ url_for('dashboard') }}">
+            <a class="nav-link active"
+               href="{{ url_for('dashboard') }}">
                 🏠 Dashboard
             </a>
 
-            <a class="nav-link" href="{{ url_for('events') }}">
+            <a class="nav-link"
+               href="{{ url_for('events') }}">
                 🔎 Patient Events
             </a>
 
-            <a class="nav-link" href="{{ url_for('journey') }}">
+            <a class="nav-link"
+               href="{{ url_for('journey') }}">
                 🩺 Patient Journey
             </a>
 
-            <a class="nav-link" href="{{ url_for('reports') }}">
+            <a class="nav-link"
+               href="{{ url_for('reports') }}">
                 📊 Reports
             </a>
 
-            <a class="nav-link" href="{{ url_for('logout') }}">
+            <!-- NEW: Process Bottleneck Analysis -->
+            <a class="nav-link"
+               href="{{ url_for('bottlenecks') }}">
+                📈 Process Bottleneck Analysis
+            </a>
+
+            <a class="nav-link"
+               href="{{ url_for('logout') }}">
                 🚪 Logout
             </a>
         </nav>
@@ -385,7 +397,9 @@
                             <tr>
                                 <td>{{ transition.from_activity }}</td>
                                 <td>{{ transition.to_activity }}</td>
-                                <td class="count">{{ transition.count }}</td>
+                                <td class="count">
+                                    {{ transition.count }}
+                                </td>
                             </tr>
                         {% else %}
                             <tr>

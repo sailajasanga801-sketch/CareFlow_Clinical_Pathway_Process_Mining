@@ -43,11 +43,14 @@ def load_events():
     missing = [column for column in required if column not in df.columns]
 
     if missing:
-        raise ValueError("Missing dataset columns: " + ", ".join(missing))
+        raise ValueError(
+            "Missing dataset columns: " + ", ".join(missing)
+        )
 
     df[TIME_COL] = pd.to_datetime(
         df[TIME_COL], errors="coerce", utc=True
     )
+
     df = df.dropna(
         subset=[CASE_COL, ACTIVITY_COL, TIME_COL]
     ).copy()
@@ -72,6 +75,7 @@ def load_dashboard_data():
 
     try:
         df = load_events()
+
         total_cases = int(df[CASE_COL].nunique())
         total_events = int(len(df))
 
@@ -84,6 +88,7 @@ def load_dashboard_data():
         )
 
         ordered = df.sort_values([CASE_COL, TIME_COL]).copy()
+
         ordered["next_activity"] = (
             ordered.groupby(CASE_COL)[ACTIVITY_COL].shift(-1)
         )
@@ -97,7 +102,9 @@ def load_dashboard_data():
             .head(10)
         )
 
-        recent = df.sort_values(TIME_COL, ascending=False).head(10)
+        recent = df.sort_values(
+            TIME_COL, ascending=False
+        ).head(10)
 
         data.update({
             "total_cases": total_cases,
@@ -188,17 +195,23 @@ def get_filtered_events(args):
 def get_patient_journey(case_id):
     """Return a single case's events in chronological order."""
     df = load_events()
-    journey = df[df[CASE_COL] == case_id].sort_values(TIME_COL).copy()
 
-    if journey.empty:
+    journey_df = df[
+        df[CASE_COL] == case_id
+    ].sort_values(TIME_COL).copy()
+
+    if journey_df.empty:
         return None
 
-    first_time = journey[TIME_COL].iloc[0]
-    last_time = journey[TIME_COL].iloc[-1]
+    first_time = journey_df[TIME_COL].iloc[0]
+    last_time = journey_df[TIME_COL].iloc[-1]
     duration = (last_time - first_time).total_seconds()
 
     timeline = []
-    for number, (_, row) in enumerate(journey.iterrows(), start=1):
+
+    for number, (_, row) in enumerate(
+        journey_df.iterrows(), start=1
+    ):
         timeline.append({
             "number": number,
             "activity": str(row[ACTIVITY_COL]),
@@ -209,12 +222,16 @@ def get_patient_journey(case_id):
 
     return {
         "case_id": case_id,
-        "event_count": len(journey),
-        "first_event": first_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
-        "last_event": last_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "event_count": len(journey_df),
+        "first_event": first_time.strftime(
+            "%Y-%m-%d %H:%M:%S UTC"
+        ),
+        "last_event": last_time.strftime(
+            "%Y-%m-%d %H:%M:%S UTC"
+        ),
         "duration_hours": round(duration / 3600, 2),
         "timeline": timeline,
-        "dataframe": journey,
+        "dataframe": journey_df,
     }
 
 
@@ -229,7 +246,10 @@ def login():
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
 
-        if username == DEMO_USERNAME and password == DEMO_PASSWORD:
+        if (
+            username == DEMO_USERNAME
+            and password == DEMO_PASSWORD
+        ):
             session.clear()
             session["logged_in"] = True
             return redirect(url_for("dashboard"))
@@ -267,14 +287,23 @@ def events():
 
     try:
         df = get_filtered_events(filters)
+
         all_activities = sorted(
             load_events()[ACTIVITY_COL].dropna().unique().tolist()
         )
 
-        display_df = df[[CASE_COL, ACTIVITY_COL, TIME_COL]].copy()
-        display_df.columns = ["case_id", "activity", "timestamp"]
-        display_df["timestamp"] = display_df["timestamp"].dt.strftime(
-            "%Y-%m-%d %H:%M:%S UTC"
+        display_df = df[
+            [CASE_COL, ACTIVITY_COL, TIME_COL]
+        ].copy()
+
+        display_df.columns = [
+            "case_id", "activity", "timestamp"
+        ]
+
+        display_df["timestamp"] = (
+            display_df["timestamp"].dt.strftime(
+                "%Y-%m-%d %H:%M:%S UTC"
+            )
         )
 
         return render_template(
@@ -292,7 +321,8 @@ def events():
     except Exception as exc:
         try:
             all_activities = sorted(
-                load_events()[ACTIVITY_COL].dropna().unique().tolist()
+                load_events()[ACTIVITY_COL]
+                .dropna().unique().tolist()
             )
         except Exception:
             all_activities = []
@@ -338,7 +368,10 @@ def journey():
     try:
         df = load_events()
         case_ids = sorted(df[CASE_COL].unique().tolist())
-        selected_case = request.args.get("case_id", "").strip()
+        selected_case = request.args.get(
+            "case_id", ""
+        ).strip()
+
         journey_data = None
         error = None
 
@@ -372,15 +405,19 @@ def download_journey():
         return redirect(url_for("login"))
 
     case_id = request.args.get("case_id", "").strip()
+
     if not case_id:
         return "Please select a patient case first.", 400
 
     try:
         result = get_patient_journey(case_id)
+
         if result is None:
             return "Patient case was not found.", 404
 
-        csv_data = result["dataframe"].to_csv(index=False).encode("utf-8")
+        csv_data = (
+            result["dataframe"].to_csv(index=False).encode("utf-8")
+        )
 
         return send_file(
             BytesIO(csv_data),
@@ -393,6 +430,67 @@ def download_journey():
         return f"Could not export patient journey: {exc}", 400
 
 
+@app.route("/bottlenecks")
+def bottlenecks():
+    """Display the previously generated process bottleneck report."""
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    csv_file = REPORTS_DIR / "process_bottlenecks.csv"
+    chart_file = REPORTS_DIR / "process_bottlenecks.png"
+
+    try:
+        if not csv_file.is_file():
+            raise FileNotFoundError(
+                "Bottleneck report not found. Run: "
+                "python src/bottleneck_analysis.py"
+            )
+
+        df = pd.read_csv(csv_file)
+
+        required = [
+            "from_activity",
+            "to_activity",
+            "case_transitions",
+            "average_gap_hours",
+            "median_gap_hours",
+            "maximum_gap_hours",
+        ]
+
+        missing = [
+            column for column in required
+            if column not in df.columns
+        ]
+
+        if missing:
+            raise ValueError(
+                "Missing report columns: " + ", ".join(missing)
+            )
+
+        df = df.sort_values(
+            "average_gap_hours", ascending=False
+        ).head(100)
+
+        rows = df.to_dict("records")
+
+        return render_template(
+            "bottlenecks.html",
+            bottlenecks=rows,
+            total_transitions=len(rows),
+            chart_exists=chart_file.is_file(),
+            error=None,
+        )
+
+    except Exception as exc:
+        return render_template(
+            "bottlenecks.html",
+            bottlenecks=[],
+            total_transitions=0,
+            chart_exists=False,
+            error=str(exc),
+        )
+
+
 @app.route("/reports")
 def reports():
     if not session.get("logged_in"):
@@ -402,6 +500,7 @@ def reports():
 
     if REPORTS_DIR.exists():
         allowed_extensions = {".csv", ".png"}
+
         report_files = sorted(
             file.name
             for file in REPORTS_DIR.iterdir()
@@ -435,11 +534,15 @@ def report_file(filename):
 
     if requested_file.suffix.lower() == ".png":
         return send_from_directory(
-            REPORTS_DIR, filename, mimetype="image/png"
+            REPORTS_DIR,
+            filename,
+            mimetype="image/png"
         )
 
     return send_from_directory(
-        REPORTS_DIR, filename, as_attachment=True
+        REPORTS_DIR,
+        filename,
+        as_attachment=True
     )
 
 
