@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Activity Sequence Comparison | CareFlow</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #243247;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
+        }
+
+        h1, h2, h3 {
+            color: #245783;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 27px;
+        }
+
+        h2 {
+            font-size: 21px;
+            margin-top: 28px;
+        }
+
+        h3 {
+            font-size: 18px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            padding: 22px;
+            margin-bottom: 22px;
+            background: #f8fafc;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: white;
+            font-size: 15px;
+        }
+
+        button, .download {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 7px;
+            background: #1764a5;
+            color: white;
+            font-size: 15px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button:hover, .download:hover {
+            background: #124d80;
+        }
+
+        .error {
+            padding: 13px;
+            margin: 15px 0;
+            border-radius: 7px;
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .success {
+            padding: 13px;
+            margin: 15px 0;
+            border-radius: 7px;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .result-card {
+            padding: 18px;
+            background: #f8fafc;
+            border: 1px solid #dbe5ef;
+            border-radius: 9px;
+            overflow-wrap: anywhere;
+        }
+
+        .result-card h3 {
+            margin-top: 10px;
+        }
+
+        .sequence {
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+        }
+
+        .match-box {
+            padding: 22px;
+            margin: 20px 0;
+            background: #f8fafc;
+            border: 1px solid #dbe5ef;
+            border-radius: 10px;
+        }
+
+        .match-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .match-heading h2 {
+            margin: 0;
+        }
+
+        .match-percentage {
+            color: #1764a5;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .match-progress {
+            width: 100%;
+            height: 18px;
+            margin: 18px 0 10px;
+            accent-color: #2196a6;
+        }
+
+        .match-note {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .activity-list {
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+        }
+
+        .download {
+            margin-top: 12px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 22px;
+            color: #1764a5;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 18px;
+            }
+
+            .form-row,
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Patient Activity Sequence Comparison</h1>
+
+    <p class="subtitle">
+        Compare the recorded clinical activity sequences of two patient cases.
+    </p>
+
+    <div class="panel">
+        <h2>Select Patient Cases</h2>
+
+        <form method="POST" action="{{ url_for('compare_sequences') }}">
+
+            <div class="form-row">
+                <div>
+                    <label for="patient_a">Patient A</label>
+                    <select name="patient_a" id="patient_a" required>
+                        <option value="">Select Patient A</option>
+
+                        {% for case_id in case_ids %}
+                        <option value="{{ case_id }}"
+                            {% if patient_a == case_id %}selected{% endif %}>
+                            {{ case_id }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label for="patient_b">Patient B</label>
+                    <select name="patient_b" id="patient_b" required>
+                        <option value="">Select Patient B</option>
+
+                        {% for case_id in case_ids %}
+                        <option value="{{ case_id }}"
+                            {% if patient_b == case_id %}selected{% endif %}>
+                            {{ case_id }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit">Compare Sequences</button>
+        </form>
+    </div>
+
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
+
+    {% if comparison %}
+
+        <h2>Comparison Results</h2>
+
+        {% if comparison.same_sequence %}
+            <div class="success">
+                The activity sequences are identical.
+            </div>
+        {% else %}
+            <div class="error">
+                The activity sequences are different.
+            </div>
+        {% endif %}
+
+        <div class="match-box">
+            <div class="match-heading">
+                <h2>Activity Match Percentage</h2>
+
+                <span class="match-percentage">
+                    {{ comparison.match_percentage }}%
+                </span>
+            </div>
+
+            <progress
+                class="match-progress"
+                value="{{ comparison.match_percentage }}"
+                max="100">
+                {{ comparison.match_percentage }}%
+            </progress>
+
+            <p class="match-note">
+                This percentage compares the unique activity names shared
+                by both patients against all unique activity names.
+                Activity order and repeated activities are not included.
+            </p>
+        </div>
+
+        <div class="result-grid">
+
+            <div class="result-card">
+                <h3>Patient A: {{ comparison.patient_a }}</h3>
+
+                <p>
+                    <strong>Activity Count:</strong>
+                    {{ comparison.count_a }}
+                </p>
+
+                <p class="sequence">
+                    {{ comparison.sequence_a }}
+                </p>
+            </div>
+
+            <div class="result-card">
+                <h3>Patient B: {{ comparison.patient_b }}</h3>
+
+                <p>
+                    <strong>Activity Count:</strong>
+                    {{ comparison.count_b }}
+                </p>
+
+                <p class="sequence">
+                    {{ comparison.sequence_b }}
+                </p>
+            </div>
+
+        </div>
+
+        <h2>Common Activities</h2>
+
+        <div class="panel activity-list">
+            {% if comparison.common %}
+                {{ comparison.common | join(", ") }}
+            {% else %}
+                No common activities found.
+            {% endif %}
+        </div>
+
+        <div class="result-grid">
+
+            <div class="result-card">
+                <h3>Activities Only in Patient A</h3>
+
+                <p class="activity-list">
+                    {% if comparison.only_a %}
+                        {{ comparison.only_a | join(", ") }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="result-card">
+                <h3>Activities Only in Patient B</h3>
+
+                <p class="activity-list">
+                    {% if comparison.only_b %}
+                        {{ comparison.only_b | join(", ") }}
+                    {% else %}
+                        None
+                    {% endif %}
+                </p>
+            </div>
+
+        </div>
+
+        <a class="download"
+           href="{{ url_for('download_sequence_comparison',
+                            patient_a=patient_a,
+                            patient_b=patient_b) }}">
+            Download Comparison CSV
+        </a>
+
+    {% endif %}
+
+    <br>
+
+    <a class="back-link" href="{{ url_for('dashboard') }}">
+        ← Back to Dashboard
+    </a>
+
+</div>
+</body>
+</html>

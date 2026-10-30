@@ -7,9 +7,7 @@
     <title>CareFlow | Clinical Dashboard</title>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
@@ -144,6 +142,72 @@
             margin: 0 0 18px;
         }
 
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px;
+            background: #ffffff;
+            min-width: 0;
+        }
+
+        .feature-card h3 {
+            margin: 0 0 10px;
+            color: #123b66;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+
+        .feature-card p {
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 58px;
+        }
+
+        .feature-status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 14px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .feature-status.ready {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .feature-status.missing {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .feature-link {
+            display: inline-block;
+            margin: 5px 8px 0 0;
+            color: #1769aa;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .feature-link:hover {
+            text-decoration: underline;
+        }
+
+        .feature-note {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 14px;
+        }
+
         .table-wrap {
             width: 100%;
             overflow-x: auto;
@@ -246,7 +310,8 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .activity-list {
+            .activity-list,
+            .feature-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -289,11 +354,15 @@
             </a>
 
             <a class="nav-link"
+               href="{{ url_for('compare_sequences') }}">
+                🔄 Patient Sequence Comparison
+            </a>
+
+            <a class="nav-link"
                href="{{ url_for('reports') }}">
                 📊 Reports
             </a>
 
-            <!-- NEW: Process Bottleneck Analysis -->
             <a class="nav-link"
                href="{{ url_for('bottlenecks') }}">
                 📈 Process Bottleneck Analysis
@@ -327,6 +396,7 @@
         {% endif %}
 
         <section class="cards">
+
             <div class="card">
                 <div class="card-label">Total Patient Cases</div>
                 <div class="card-value">
@@ -354,6 +424,85 @@
                     {{ dashboard.avg_events }}
                 </div>
             </div>
+
+        </section>
+
+        <section class="section">
+            <h2>New Clinical Analysis Features</h2>
+
+            <div class="feature-grid">
+
+                <article class="feature-card">
+                    <span class="feature-status ready">
+                        Interactive Feature
+                    </span>
+
+                    <h3>Patient Activity Sequence Comparison</h3>
+
+                    <p>
+                        Compare two patient cases, identify common and
+                        unique activities, and check whether their recorded
+                        activity sequences are identical.
+                    </p>
+
+                    <a class="feature-link"
+                       href="{{ url_for('compare_sequences') }}">
+                        Compare Patient Sequences ↗
+                    </a>
+                </article>
+
+                {% for feature in feature_reports["items"] %}
+                    <article class="feature-card">
+
+                        <span class="feature-status {{ 'ready' if feature.available else 'missing' }}">
+                            {{ 'Report available' if feature.available else 'Report not generated yet' }}
+                        </span>
+
+                        <h3>{{ feature.title }}</h3>
+                        <p>{{ feature.description }}</p>
+
+                        {% if feature.available %}
+                            <div class="muted">
+                                Report rows: {{ feature.row_count }}
+                            </div>
+
+                            <a class="feature-link"
+                               href="{{ feature.download_url }}">
+                                Download report ↗
+                            </a>
+                        {% else %}
+                            <div class="muted">
+                                Run the related analysis script to generate this report.
+                            </div>
+
+                            <a class="feature-link"
+                               href="{{ url_for('reports') }}">
+                                View all reports ↗
+                            </a>
+                        {% endif %}
+
+                        {% if feature.title == 'Patient Case Duration Analysis'
+                              and feature_reports.duration_chart_available %}
+                            <div>
+                                <a class="feature-link"
+                                   href="{{ feature_reports.duration_chart_url }}"
+                                   target="_blank"
+                                   rel="noopener">
+                                    View duration chart ↗
+                                </a>
+                            </div>
+                        {% endif %}
+
+                    </article>
+                {% endfor %}
+
+            </div>
+
+            <div class="feature-note">
+                These analyses use recorded event-log data. Duration means
+                time between the first and last recorded event, and is not
+                necessarily the full hospital stay.
+            </div>
         </section>
 
         <section class="section">
@@ -366,6 +515,7 @@
                             <span class="activity-name">
                                 {{ activity.activity }}
                             </span>
+
                             <span class="count">
                                 {{ activity.count }}
                             </span>

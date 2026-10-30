@@ -1,4 +1,3 @@
-
 from pathlib import Path
 from io import BytesIO
 
@@ -59,6 +58,52 @@ def load_events():
     df[ACTIVITY_COL] = df[ACTIVITY_COL].astype(str)
 
     return df.sort_values(TIME_COL)
+
+
+def load_feature_reports():
+    """Collect the three newly developed analyses for the dashboard."""
+    definitions = [
+        {
+            "title": "Process Conformance Checking",
+            "description": "Compare patient activity transitions with common process transitions.",
+            "filename": "conformance_report.csv",
+        },
+        {
+            "title": "Patient Pathway Deviation Detection",
+            "description": "Review cases flagged for less-common activity transitions.",
+            "filename": "pathway_deviation_report.csv",
+        },
+        {
+            "title": "Patient Case Duration Analysis",
+            "description": "Explore recorded journey durations and duration categories.",
+            "filename": "duration_category_summary.csv",
+        },
+    ]
+
+    reports = []
+    for item in definitions:
+        report_path = REPORTS_DIR / item["filename"]
+        report = {
+            **item,
+            "available": report_path.is_file(),
+            "row_count": 0,
+            "download_url": url_for("report_file", filename=item["filename"]),
+        }
+        if report_path.is_file():
+            try:
+                report["row_count"] = len(pd.read_csv(report_path))
+            except (OSError, pd.errors.ParserError, UnicodeDecodeError):
+                report["row_count"] = 0
+        reports.append(report)
+
+    duration_chart = REPORTS_DIR / "duration_category_distribution.png"
+    return {
+        "items": reports,
+        "duration_chart_available": duration_chart.is_file(),
+        "duration_chart_url": url_for(
+            "report_file", filename="duration_category_distribution.png"
+        ),
+    }
 
 
 def load_dashboard_data():
@@ -269,7 +314,8 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
-        dashboard=load_dashboard_data()
+        dashboard=load_dashboard_data(),
+        feature_reports=load_feature_reports()
     )
 
 
@@ -550,6 +596,118 @@ def report_file(filename):
 def logout():
     session.clear()
     return redirect(url_for("welcome"))
+
+
+def build_sequence_comparison(patient_a, patient_b):
+    """Compare the recorded activity sequences of two patient cases."""
+    df = load_events()
+
+    if patient_a == patient_b:
+        raise ValueError("Please select two different patient cases.")
+
+    patient_a_events = df[df[CASE_COL].astype(str) == str(patient_a)]
+    patient_b_events = df[df[CASE_COL].astype(str) == str(patient_b)]
+
+    if patient_a_events.empty or patient_b_events.empty:
+        raise ValueError("One or both patient cases were not found.")
+
+    sequence_a = (
+        patient_a_events.sort_values(TIME_COL)[ACTIVITY_COL]
+        .astype(str).tolist()
+    )
+    sequence_b = (
+        patient_b_events.sort_values(TIME_COL)[ACTIVITY_COL]
+        .astype(str).tolist()
+    )
+
+    activities_a = set(sequence_a)
+    activities_b = set(sequence_b)
+    common_activities = activities_a & activities_b
+    all_activities = activities_a | activities_b
+
+    match_percentage = (
+        round(len(common_activities) / len(all_activities) * 100, 2)
+        if all_activities else 0
+    )
+
+    return {
+        "patient_a": patient_a,
+        "patient_b": patient_b,
+        "count_a": len(sequence_a),
+        "count_b": len(sequence_b),
+        "sequence_a": " -> ".join(sequence_a),
+        "sequence_b": " -> ".join(sequence_b),
+        "common": sorted(common_activities),
+        "only_a": sorted(activities_a - activities_b),
+        "only_b": sorted(activities_b - activities_a),
+        "same_sequence": sequence_a == sequence_b,
+        "match_percentage": match_percentage,
+    }
+
+
+@app.route("/compare-sequences", methods=["GET", "POST"])
+def compare_sequences():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    try:
+        df = load_events()
+        case_ids = sorted(df[CASE_COL].dropna().astype(str).unique().tolist())
+    except Exception as exc:
+        return f"Could not load patient cases: {exc}", 500
+
+    patient_a = ""
+    patient_b = ""
+    comparison = None
+    error = None
+
+    if request.method == "POST":
+        patient_a = request.form.get("patient_a", "").strip()
+        patient_b = request.form.get("patient_b", "").strip()
+
+        try:
+            if patient_a not in case_ids or patient_b not in case_ids:
+                raise ValueError("Please select valid patient cases.")
+            comparison = build_sequence_comparison(patient_a, patient_b)
+        except ValueError as exc:
+            error = str(exc)
+        except Exception as exc:
+            error = f"Comparison failed: {exc}"
+
+    return render_template(
+        "compare_sequences.html",
+        case_ids=case_ids,
+        patient_a=patient_a,
+        patient_b=patient_b,
+        comparison=comparison,
+        error=error,
+    )
+
+
+@app.route("/compare-sequences/download")
+def download_sequence_comparison():
+    if not session.get("logged_in"):
+        return redirect(url_for("login"))
+
+    patient_a = request.args.get("patient_a", "").strip()
+    patient_b = request.args.get("patient_b", "").strip()
+
+    try:
+        comparison = build_sequence_comparison(patient_a, patient_b)
+        output = BytesIO()
+        pd.DataFrame([comparison]).to_csv(output, index=False)
+        output.seek(0)
+
+        return send_file(
+            output,
+            mimetype="text/csv",
+            as_attachment=True,
+            download_name="patient_sequence_comparison.csv",
+        )
+    except ValueError as exc:
+        return str(exc), 400
+    except Exception as exc:
+        return f"Could not download comparison: {exc}", 400
 
 
 if __name__ == "__main__":
