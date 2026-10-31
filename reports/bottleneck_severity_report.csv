@@ -1,0 +1,116 @@
+from_activity,to_activity,case_transitions,average_gap_hours,median_gap_hours,maximum_gap_hours,severity,severity_description
+Release E,Return ER,1,2706.1388888888887,2706.1388888888887,2706.1388888888887,High,Relatively longer recorded time gap
+Release A,Return ER,276,1976.1611201690816,1134.4005555555557,10014.255,High,Relatively longer recorded time gap
+Release C,Return ER,6,1635.2269444444446,1672.5197222222223,3167.9508333333333,High,Relatively longer recorded time gap
+Release D,Return ER,10,1334.3794444444443,506.89819444444447,4159.196666666667,High,Relatively longer recorded time gap
+Leucocytes,Return ER,1,280.8775,280.8775,280.8775,High,Relatively longer recorded time gap
+Admission NC,Release C,4,211.35972222222225,222.75,377.69194444444446,High,Relatively longer recorded time gap
+Admission NC,Release D,1,191.94361111111112,191.94361111111112,191.94361111111112,High,Relatively longer recorded time gap
+Leucocytes,Release C,8,126.28125,101.25,339.5,High,Relatively longer recorded time gap
+IV Antibiotics,Release A,2,112.89916666666667,112.89916666666667,132.955,High,Relatively longer recorded time gap
+CRP,Release C,13,110.05128205128204,97.5,458.5,High,Relatively longer recorded time gap
+Leucocytes,Release E,2,98.75,98.75,172.0,High,Relatively longer recorded time gap
+LacticAcid,Release A,3,90.33333333333331,98.0,119.5,High,Relatively longer recorded time gap
+Leucocytes,Release D,11,85.79343434343434,52.98361111111111,266.5,High,Relatively longer recorded time gap
+CRP,Release D,12,84.81201388888888,62.125,246.25,High,Relatively longer recorded time gap
+Admission NC,Release A,117,77.80646248812914,67.74111111111111,284.1136111111111,High,Relatively longer recorded time gap
+IV Liquid,Release A,2,59.246527777777786,59.246527777777786,83.3375,High,Relatively longer recorded time gap
+Leucocytes,Release B,14,49.63224206349207,28.50763888888889,156.25,High,Relatively longer recorded time gap
+CRP,CRP,317,47.67686645636173,48.0,240.0,High,Relatively longer recorded time gap
+Leucocytes,Release A,225,47.00008518518519,30.25,458.75,High,Relatively longer recorded time gap
+CRP,Release A,322,46.91591528640441,31.25,363.0,High,Relatively longer recorded time gap
+Leucocytes,Leucocytes,457,34.874215900802334,24.0,335.0,High,Relatively longer recorded time gap
+Admission NC,Release B,17,34.6456045751634,20.662222222222223,123.6986111111111,High,Relatively longer recorded time gap
+Admission NC,CRP,369,33.64581225534478,24.092777777777776,187.22027777777777,High,Relatively longer recorded time gap
+Admission NC,Leucocytes,408,32.74004697712419,24.969583333333333,165.0,High,Relatively longer recorded time gap
+Admission NC,ER Triage,1,31.549166666666668,31.549166666666668,31.549166666666668,High,Relatively longer recorded time gap
+CRP,Release B,19,31.09561403508772,22.75,108.25,High,Relatively longer recorded time gap
+IV Liquid,Release B,1,17.428055555555556,17.428055555555556,17.428055555555556,High,Relatively longer recorded time gap
+Admission NC,IV Liquid,22,15.952171717171716,19.133472222222224,23.18694444444445,High,Relatively longer recorded time gap
+Admission NC,Admission NC,175,15.636563492063493,14.791944444444445,117.95583333333332,High,Relatively longer recorded time gap
+LacticAcid,LacticAcid,83,15.29417670682731,17.2,30.0,Medium,Moderate recorded time gap
+CRP,Admission IC,17,14.931356209150328,2.9166666666666665,139.96333333333334,Medium,Moderate recorded time gap
+CRP,Release E,3,14.916666666666666,16.75,25.0,Medium,Moderate recorded time gap
+Admission NC,LacticAcid,27,14.378950617283952,7.746944444444445,45.97055555555556,Medium,Moderate recorded time gap
+CRP,Leucocytes,1445,12.405236447520185,0.0,363.0,Medium,Moderate recorded time gap
+LacticAcid,Release B,4,12.279166666666669,6.408333333333333,34.6,Medium,Moderate recorded time gap
+Leucocytes,Admission NC,153,10.914375453885258,4.0,150.01666666666668,Medium,Moderate recorded time gap
+Admission IC,Admission NC,4,8.544722222222223,7.352777777777778,17.092777777777776,Medium,Moderate recorded time gap
+CRP,Admission NC,187,8.379300356506239,4.0,174.0,Medium,Moderate recorded time gap
+IV Liquid,CRP,46,7.416642512077295,0.1669444444444444,104.28277777777778,Medium,Moderate recorded time gap
+Admission NC,Admission IC,20,6.563375000000001,4.876944444444444,20.45,Medium,Moderate recorded time gap
+Leucocytes,CRP,1778,5.735836145481815,0.0,243.0,Medium,Moderate recorded time gap
+Admission IC,Leucocytes,38,5.695372807017544,3.0877777777777777,22.614722222222223,Medium,Moderate recorded time gap
+Leucocytes,ER Registration,14,5.670396825396826,5.448333333333333,12.345555555555556,Medium,Moderate recorded time gap
+CRP,ER Registration,14,5.572341269841269,5.766666666666668,13.04111111111111,Medium,Moderate recorded time gap
+Leucocytes,Admission IC,18,5.447654320987654,3.133472222222222,31.762777777777774,Medium,Moderate recorded time gap
+IV Antibiotics,CRP,48,5.072795138888889,0.1520833333333333,134.98472222222222,Medium,Moderate recorded time gap
+LacticAcid,Release E,1,5.0,5.0,5.0,Medium,Moderate recorded time gap
+Release A,Leucocytes,1,5.0,5.0,5.0,Medium,Moderate recorded time gap
+Admission IC,LacticAcid,41,4.826639566395664,3.1438888888888887,18.10833333333333,Medium,Moderate recorded time gap
+Admission IC,CRP,32,4.612465277777778,2.018472222222222,19.93027777777778,Medium,Moderate recorded time gap
+Admission NC,IV Antibiotics,2,4.297916666666667,4.297916666666667,8.574444444444444,Medium,Moderate recorded time gap
+LacticAcid,Admission NC,102,4.150972222222222,3.6275,16.866666666666667,Medium,Moderate recorded time gap
+LacticAcid,CRP,404,3.698597359735974,0.0,72.0,Medium,Moderate recorded time gap
+LacticAcid,Leucocytes,565,3.13976401179941,0.0,88.0,Medium,Moderate recorded time gap
+LacticAcid,IV Liquid,124,2.394148745519713,2.2555555555555555,13.259166666666667,Medium,Moderate recorded time gap
+IV Liquid,Leucocytes,55,2.316691919191919,0.1833333333333333,34.799166666666665,Medium,Moderate recorded time gap
+CRP,IV Liquid,111,2.1560635635635634,1.7677777777777777,15.92027777777778,Medium,Moderate recorded time gap
+ER Sepsis Triage,Admission NC,19,2.133304093567252,1.596666666666667,5.870277777777778,Medium,Moderate recorded time gap
+ER Sepsis Triage,ER Registration,5,2.0859444444444444,0.0747222222222222,10.057222222222222,Medium,Moderate recorded time gap
+LacticAcid,Admission IC,10,2.0815277777777776,1.635138888888889,6.833333333333333,Medium,Moderate recorded time gap
+IV Liquid,Admission IC,3,2.028240740740741,2.196111111111111,2.375,Medium,Moderate recorded time gap
+ER Sepsis Triage,Admission IC,1,2.004722222222222,2.004722222222222,2.004722222222222,Medium,Moderate recorded time gap
+Leucocytes,IV Antibiotics,73,1.972914764079148,2.0258333333333334,5.559722222222222,Medium,Moderate recorded time gap
+Admission NC,ER Sepsis Triage,5,1.925888888888889,0.0597222222222222,9.275,Medium,Moderate recorded time gap
+Leucocytes,IV Liquid,102,1.8207788671023963,1.413888888888889,10.013055555555557,Medium,Moderate recorded time gap
+CRP,IV Antibiotics,81,1.6631687242798354,1.4805555555555556,4.956666666666667,Medium,Moderate recorded time gap
+IV Liquid,Admission NC,52,1.6566185897435897,1.6023611111111111,5.6883333333333335,Medium,Moderate recorded time gap
+LacticAcid,IV Antibiotics,89,1.6440043695380775,1.6419444444444444,8.626111111111111,Medium,Moderate recorded time gap
+Leucocytes,LacticAcid,435,1.6195785440613026,0.0,24.5,Medium,Moderate recorded time gap
+IV Antibiotics,IV Liquid,62,1.5773163082437278,0.0004166666666666,21.989166666666662,Medium,Moderate recorded time gap
+Release A,CRP,1,1.1833333333333331,1.1833333333333331,1.1833333333333331,Medium,Moderate recorded time gap
+IV Antibiotics,Leucocytes,53,1.177982180293501,0.2297222222222222,10.813611111111111,Medium,Moderate recorded time gap
+IV Antibiotics,Admission NC,489,1.0813650306748466,0.0977777777777777,42.32083333333333,Medium,Moderate recorded time gap
+CRP,LacticAcid,629,1.0273714891361951,0.0,25.616666666666667,Medium,Moderate recorded time gap
+ER Triage,ER Registration,5,0.923,0.3080555555555556,3.2519444444444443,Medium,Moderate recorded time gap
+ER Triage,Leucocytes,52,0.886826923076923,0.215,32.336666666666666,Medium,Moderate recorded time gap
+CRP,ER Sepsis Triage,35,0.8684444444444445,0.3775,5.012222222222222,Medium,Moderate recorded time gap
+IV Liquid,ER Sepsis Triage,7,0.8590873015873016,0.2886111111111111,3.943333333333333,Medium,Moderate recorded time gap
+IV Antibiotics,Admission IC,46,0.7142753623188406,0.0451388888888888,4.891388888888889,Medium,Moderate recorded time gap
+Admission IC,Admission IC,1,0.6733333333333333,0.6733333333333333,0.6733333333333333,Medium,Moderate recorded time gap
+ER Registration,Admission IC,1,0.6619444444444444,0.6619444444444444,0.6619444444444444,Medium,Moderate recorded time gap
+LacticAcid,ER Sepsis Triage,42,0.6288888888888889,0.3784722222222222,3.4655555555555555,Medium,Moderate recorded time gap
+Leucocytes,ER Sepsis Triage,36,0.6131404320987655,0.22375,3.6008333333333336,Medium,Moderate recorded time gap
+ER Triage,IV Antibiotics,1,0.5811111111111111,0.5811111111111111,0.5811111111111111,Medium,Moderate recorded time gap
+LacticAcid,ER Registration,1,0.5225,0.5225,0.5225,Medium,Moderate recorded time gap
+ER Sepsis Triage,IV Antibiotics,76,0.5137207602339181,0.0554166666666666,6.083611111111111,Medium,Moderate recorded time gap
+IV Antibiotics,LacticAcid,28,0.4984920634920635,0.1277777777777777,3.9616666666666656,Low,Relatively shorter recorded time gap
+IV Liquid,LacticAcid,36,0.4280246913580247,0.1497222222222222,7.0,Low,Relatively shorter recorded time gap
+ER Registration,Leucocytes,21,0.3225661375661375,0.3083333333333333,0.6988888888888889,Low,Relatively shorter recorded time gap
+Return ER,CRP,3,0.3103703703703703,0.2666666666666666,0.4358333333333333,Low,Relatively shorter recorded time gap
+ER Sepsis Triage,Leucocytes,269,0.3094568360181743,0.2341666666666666,3.1533333333333333,Low,Relatively shorter recorded time gap
+ER Sepsis Triage,CRP,192,0.2998640046296296,0.2425,1.3747222222222222,Low,Relatively shorter recorded time gap
+ER Registration,LacticAcid,10,0.2767222222222222,0.1858333333333333,0.8644444444444445,Low,Relatively shorter recorded time gap
+ER Registration,CRP,14,0.2734126984126984,0.2226388888888889,0.6675,Low,Relatively shorter recorded time gap
+ER Triage,CRP,48,0.2685706018518518,0.2170833333333333,1.4791666666666667,Low,Relatively shorter recorded time gap
+ER Sepsis Triage,LacticAcid,148,0.262484984984985,0.2015277777777777,2.0652777777777778,Low,Relatively shorter recorded time gap
+ER Triage,IV Liquid,11,0.2579292929292929,0.1022222222222222,0.5561111111111111,Low,Relatively shorter recorded time gap
+ER Triage,LacticAcid,29,0.2571360153256705,0.2011111111111111,0.8411111111111111,Low,Relatively shorter recorded time gap
+Release B,Admission NC,1,0.225,0.225,0.225,Low,Relatively shorter recorded time gap
+IV Liquid,IV Antibiotics,501,0.2243845642049235,0.0016666666666666,5.164444444444444,Low,Relatively shorter recorded time gap
+ER Sepsis Triage,IV Liquid,285,0.2074668615984405,0.0063888888888888,6.064444444444445,Low,Relatively shorter recorded time gap
+IV Liquid,ER Registration,15,0.2042592592592592,0.035,0.9641666666666666,Low,Relatively shorter recorded time gap
+IV Antibiotics,ER Registration,1,0.1944444444444444,0.1944444444444444,0.1944444444444444,Low,Relatively shorter recorded time gap
+ER Registration,ER Triage,971,0.1765170500057214,0.1316666666666666,1.4502777777777778,Low,Relatively shorter recorded time gap
+IV Antibiotics,Release B,1,0.1694444444444444,0.1694444444444444,0.1694444444444444,Low,Relatively shorter recorded time gap
+ER Sepsis Triage,ER Triage,5,0.1321666666666666,0.1505555555555555,0.205,Low,Relatively shorter recorded time gap
+CRP,ER Triage,16,0.1194791666666666,0.0563888888888888,0.5905555555555555,Low,Relatively shorter recorded time gap
+Leucocytes,ER Triage,11,0.1036868686868686,0.0802777777777777,0.2080555555555555,Low,Relatively shorter recorded time gap
+IV Antibiotics,ER Triage,6,0.1014814814814814,0.0358333333333333,0.3719444444444444,Low,Relatively shorter recorded time gap
+LacticAcid,ER Triage,14,0.0993849206349206,0.0815277777777777,0.2383333333333333,Low,Relatively shorter recorded time gap
+IV Liquid,ER Triage,23,0.0828140096618357,0.0761111111111111,0.26,Low,Relatively shorter recorded time gap
+ER Registration,IV Liquid,22,0.0810732323232323,0.0715277777777777,0.2341666666666666,Low,Relatively shorter recorded time gap
+ER Registration,ER Sepsis Triage,11,0.0553030303030303,0.035,0.1433333333333333,Low,Relatively shorter recorded time gap
+ER Triage,ER Sepsis Triage,905,0.0484088397790055,0.0069444444444444,11.221944444444444,Low,Relatively shorter recorded time gap
+Admission IC,ER Sepsis Triage,1,0.0086111111111111,0.0086111111111111,0.0086111111111111,Low,Relatively shorter recorded time gap

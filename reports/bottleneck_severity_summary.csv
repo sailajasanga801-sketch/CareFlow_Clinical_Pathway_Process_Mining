@@ -1,0 +1,4 @@
+severity,transition_count,average_gap_hours,maximum_gap_hours
+Low,29,0.21,0.5
+Medium,57,4.17,15.29
+High,29,331.75,2706.14
