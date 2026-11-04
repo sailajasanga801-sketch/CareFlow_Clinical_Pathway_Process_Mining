@@ -1,0 +1,116 @@
+concept:name,next_activity,occurrence_count,case_count,is_common_transition
+ER Registration,ER Triage,971,971,True
+ER Triage,ER Sepsis Triage,905,905,True
+Leucocytes,CRP,1778,758,True
+CRP,Leucocytes,1445,647,True
+IV Liquid,IV Antibiotics,501,501,True
+IV Antibiotics,Admission NC,489,489,True
+CRP,LacticAcid,629,417,True
+Admission NC,Leucocytes,408,367,True
+LacticAcid,Leucocytes,565,366,True
+Admission NC,CRP,369,339,True
+CRP,Release A,322,322,True
+Leucocytes,LacticAcid,435,312,True
+LacticAcid,CRP,404,294,True
+ER Sepsis Triage,IV Liquid,285,285,True
+Release A,Return ER,276,276,True
+ER Sepsis Triage,Leucocytes,269,269,True
+Leucocytes,Release A,225,225,True
+Leucocytes,Leucocytes,457,217,True
+CRP,CRP,317,210,True
+ER Sepsis Triage,CRP,192,192,True
+CRP,Admission NC,187,171,True
+Admission NC,Admission NC,175,166,True
+ER Sepsis Triage,LacticAcid,148,148,True
+Leucocytes,Admission NC,153,145,True
+LacticAcid,IV Liquid,124,124,True
+Admission NC,Release A,117,117,True
+CRP,IV Liquid,111,111,True
+Leucocytes,IV Liquid,102,102,False
+LacticAcid,Admission NC,102,100,False
+LacticAcid,IV Antibiotics,89,89,False
+CRP,IV Antibiotics,81,81,False
+ER Sepsis Triage,IV Antibiotics,76,76,False
+Leucocytes,IV Antibiotics,73,73,False
+IV Antibiotics,IV Liquid,62,62,False
+IV Liquid,Leucocytes,55,55,False
+IV Antibiotics,Leucocytes,53,53,False
+ER Triage,Leucocytes,52,52,False
+IV Liquid,Admission NC,52,52,False
+ER Triage,CRP,48,48,False
+IV Antibiotics,CRP,48,48,False
+LacticAcid,LacticAcid,83,46,False
+IV Antibiotics,Admission IC,46,46,False
+IV Liquid,CRP,46,46,False
+LacticAcid,ER Sepsis Triage,42,42,False
+Admission IC,LacticAcid,41,40,False
+Admission IC,Leucocytes,38,37,False
+IV Liquid,LacticAcid,36,36,False
+Leucocytes,ER Sepsis Triage,36,36,False
+CRP,ER Sepsis Triage,35,35,False
+Admission IC,CRP,32,31,False
+ER Triage,LacticAcid,29,29,False
+IV Antibiotics,LacticAcid,28,28,False
+Admission NC,LacticAcid,27,26,False
+IV Liquid,ER Triage,23,23,False
+Admission NC,IV Liquid,22,22,False
+ER Registration,IV Liquid,22,22,False
+ER Registration,Leucocytes,21,21,False
+Admission NC,Admission IC,20,20,False
+CRP,Release B,19,19,False
+ER Sepsis Triage,Admission NC,19,19,False
+Leucocytes,Admission IC,18,17,False
+Admission NC,Release B,17,17,False
+CRP,Admission IC,17,17,False
+CRP,ER Triage,16,16,False
+IV Liquid,ER Registration,15,15,False
+CRP,ER Registration,14,14,False
+ER Registration,CRP,14,14,False
+LacticAcid,ER Triage,14,14,False
+Leucocytes,ER Registration,14,14,False
+Leucocytes,Release B,14,14,False
+CRP,Release C,13,13,False
+CRP,Release D,12,12,False
+ER Registration,ER Sepsis Triage,11,11,False
+ER Triage,IV Liquid,11,11,False
+Leucocytes,ER Triage,11,11,False
+Leucocytes,Release D,11,11,False
+ER Registration,LacticAcid,10,10,False
+LacticAcid,Admission IC,10,10,False
+Release D,Return ER,10,10,False
+Leucocytes,Release C,8,8,False
+IV Liquid,ER Sepsis Triage,7,7,False
+IV Antibiotics,ER Triage,6,6,False
+Release C,Return ER,6,6,False
+Admission NC,ER Sepsis Triage,5,5,False
+ER Sepsis Triage,ER Registration,5,5,False
+ER Sepsis Triage,ER Triage,5,5,False
+ER Triage,ER Registration,5,5,False
+Admission IC,Admission NC,4,4,False
+Admission NC,Release C,4,4,False
+LacticAcid,Release B,4,4,False
+CRP,Release E,3,3,False
+IV Liquid,Admission IC,3,3,False
+LacticAcid,Release A,3,3,False
+Return ER,CRP,3,3,False
+Admission NC,IV Antibiotics,2,2,False
+IV Antibiotics,Release A,2,2,False
+IV Liquid,Release A,2,2,False
+Leucocytes,Release E,2,2,False
+Admission IC,Admission IC,1,1,False
+Admission IC,ER Sepsis Triage,1,1,False
+Admission NC,ER Triage,1,1,False
+Admission NC,Release D,1,1,False
+ER Registration,Admission IC,1,1,False
+ER Sepsis Triage,Admission IC,1,1,False
+ER Triage,IV Antibiotics,1,1,False
+IV Antibiotics,ER Registration,1,1,False
+IV Antibiotics,Release B,1,1,False
+IV Liquid,Release B,1,1,False
+LacticAcid,ER Registration,1,1,False
+LacticAcid,Release E,1,1,False
+Leucocytes,Return ER,1,1,False
+Release A,CRP,1,1,False
+Release A,Leucocytes,1,1,False
+Release B,Admission NC,1,1,False
+Release E,Return ER,1,1,False

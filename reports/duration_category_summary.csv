@@ -1,0 +1,4 @@
+duration_category,patient_cases,average_duration_hours,median_duration_hours
+Short (<24 hours),272,3.092781862745098,1.1440277777777776
+Medium (24-168 hours),333,100.67337337337337,98.75
+Long (>168 hours),445,1534.970627340824,625.6197222222222
