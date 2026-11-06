@@ -38,3 +38,14 @@ Initial setup completed. Dataset files collected. Development in progress.
 
 \- Planned dashboard integration for Bottleneck Severity Analysis and Patient Return Visit Pattern Analysis.
 
+## Project Progress – 06 November 2026
+
+The CareFlow project now includes an integrated Flask dashboard
+for exploring clinical pathway process analysis results.
+
+The dashboard provides patient journey visualization, activity
+summaries, process bottleneck reports, bottleneck severity analysis,
+patient return visit patterns, and downloadable reports.
+
+The project focuses on analyzing recorded clinical event data
+and identifying patterns in patient activity sequences.
